@@ -2,25 +2,27 @@ import re
 
 def parseData(data):
     imports = {}
-    dllRegex = re.compile("(.+?):.* Imports from (\w+\.dll)", re.S | re.I)
+    dllRegex = re.compile("(\w+):.*?Imports from (\w+\.dll)", re.I)
     bIsExtrnCompiled = False
+    importsFull = {}
     while True:
         dllMatch = dllRegex.search(data)
-        print dllMatch
         if not bIsExtrnCompiled:
-            extrnRegex = re.compile(dllMatch.group()[0] + "(\?{2}\s+){4}(\w+)? (\w+)[:\s]", re.S | re.I)
+            extrnRegex = re.compile(dllMatch.group(1) + ".+(\?{2}\s+){4}\s+(extrn )?(\w+)[:\s]", re.I)
             bIsExtrnCompiled = True
-        nextDll = dllRegex.search(data[dllMatch.span()[1]:])
+        nextDll = dllRegex.search(data[dllMatch.span(2)[1]:])
         if not nextDll:
             break
-        currDll = dllMatch.group()[1]
-        externals = extrnRegex.findall(data[dllMatch.span()[1]: nextDll.span()[0]])
-        print externals
-        print dllMatch.group()
-        print nextDll.span()
-        data = data[dllMatch.span()[1]:]
-    externals = extrnRegex.findall(data[dllMatch.span()[1]: ])
-    print "last dll: "
-    print dllMatch.group()
-    print externals
-    return "a"
+        externals = extrnRegex.findall(data[dllMatch.span(2)[1]:dllMatch.span(2)[1] + nextDll.span(2)[0]])
+        
+        data = data[dllMatch.span(2)[1]:]
+        imports = []
+        for i in externals:
+            imports.append(i[2])
+        importsFull[dllMatch.group(2)] = imports
+    externals = extrnRegex.findall(data[dllMatch.span(2)[1]:])
+##    print "last dll: "
+##    print dllMatch.group()
+##    print importsFull
+##    raw_input()
+    return importsFull
