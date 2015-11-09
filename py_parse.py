@@ -1,12 +1,12 @@
 import os
-import pyImports
+import pyIPs
 #import multiprocessing
 import pp
 import sys
 
 CSV_DELIM = ","
 
-asmDir = "C:\Users\Jbt\Desktop\parallel\samples\\"
+asmDir = "C:\Users\Jbt\Desktop\malware stuff\TeamBeta\TeamBeta-git\samples\\"
 asms = os.listdir(asmDir)
 
 def runRegexes(filePath):
@@ -14,7 +14,7 @@ def runRegexes(filePath):
         print filePath
         asmData = open(filePath, "rb").read()
     
-        imports = pyImports.parseData(asmData)
+        imports = pyIPs.parseData(asmData)
         
     
         out = open(filePath + ".csv", "w+")
@@ -36,7 +36,7 @@ else:
 
 print "Starting pp with", job_server.get_ncpus(), "workers"
 
-jobs = [(asm, job_server.submit(func=runRegexes, args=((asmDir + asm),), depfuncs=(), modules=("pyImports",))) for asm in asms]
+jobs = [(asm, job_server.submit(func=runRegexes, args=((asmDir + asm),), depfuncs=(), modules=("pyIPs",))) for asm in asms]
 for asm,job in jobs:
     job()
 
